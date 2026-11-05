@@ -1,0 +1,9 @@
+name = "hr-interview-scheduler-sync"
+main = "worker.js"
+compatibility_date = "2026-11-01"
+[vars]
+ALLOWED_ORIGIN = "https://marcus-same.github.io"
+[[d1_databases]]
+binding = "DB"
+database_name = "hr_interview_scheduler"
+database_id = "REPLACE_WITH_CLOUDFLARE_D1_ID"
