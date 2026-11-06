@@ -96,7 +96,7 @@ async function cloudFetch(path,method='GET',body=null,token=cloud.view){
 function remoteToBooking(b){
  const start=new Date(b.start),end=new Date(b.end);
  if(!Number.isFinite(start.getTime())||!Number.isFinite(end.getTime()))return null;
- const date=new Intl.DateTimeFormat('en-CA',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).format(start);
+ const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Shanghai',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(start);const datePart=Object.fromEntries(parts.filter(x=>x.type!=='literal').map(x=>[x.type,x.value]));const date=[datePart.year,datePart.month,datePart.day].join('-');
  const day=DATES.indexOf(date);if(day<0)return null;
  const minutes=start.getUTCHours()*60+start.getUTCMinutes()+480;
  const finish=end.getTime()-start.getTime();
@@ -139,7 +139,7 @@ async function connectCloud(){
  cloud.lastSync=new Date();
  updateCloudStatus('云端已连接 · '+cloud.lastSync.toLocaleTimeString('zh-CN',{hour12:false})+' 刷新','ok');
  render();notify('云端连接成功，已切换到共享预约记录');
- }catch(e){cloud.connected=false;updateCloudStatus('连接失败 · 本机模式','fail');notify('连接失败：'+e.message);}
+ }catch(e){cloud.connected=false;updateCloudStatus('连接失败 · 已暂停预约','fail');notify('连接失败：'+e.message);}
 }
 function disconnectCloud(){
  cloud={url:'',view:'',write:'',connected:false,lastSync:null,loading:false};
@@ -219,7 +219,7 @@ $('saveSettings').addEventListener('click',saveSettings);
 $('exportBtn').addEventListener('click',exportCSV);
 document.body.addEventListener('click',e=>{const b=e.target.closest('[data-close]');if(b)closeDialog(b.dataset.close);});
 for(const id of ['bookDialog','settingsDialog'])$(id).addEventListener('click',e=>{if(e.target===$(id))closeDialog(id);});
-window.addEventListener('storage', e=>{if(e.key===STORAGE_KEY){refreshFromStorage();render();notify('预约信息已从同一浏览器的其他标签页更新。');}});
+window.addEventListener('storage', e=>{if(e.key===STORAGE_KEY&&!cloud.url){refreshFromStorage();render();notify('预约信息已从同一浏览器的其他标签页更新。');}});
 window.addEventListener('focus',()=>{if(cloud.url)refreshCloud(true);else{refreshFromStorage();render();}});
 $('syncConnectBtn').addEventListener('click',connectCloud);
 $('syncDisconnectBtn').addEventListener('click',disconnectCloud);
